@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
 
-export const signUp = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -44,7 +44,7 @@ export const signUp = async (req, res, next) => {
   }
 };
 
-export const signIn = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -82,7 +82,7 @@ export const signIn = async (req, res, next) => {
   }
 };
 
-export const signOut = async (req, res, next) => {
+export const logout = async (req, res, next) => {
   try {
     res.status(200).json({
       success: true,
