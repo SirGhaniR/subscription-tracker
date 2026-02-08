@@ -9,12 +9,18 @@ import connectToDatabase from "./database/mongodb.js";
 import errorMiddleware from "./middleware/error.middleware.js";
 import arcjetMiddleware from "./middleware/arcjet.middleware.js";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import cors from "cors";
 
 const app = express();
 
+// the order is: parsing, security, routes, error handling
 app.use(express.json({ limit: "100kb" }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 app.use(cookieParser());
+
+app.use(helmet());
+app.use(cors()); // in production, dont forget to restrict CORS to the frontend domain (if there are frontend huhu)
 app.use(arcjetMiddleware);
 
 app.use("/api/v1/auth", authRouter);
