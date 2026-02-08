@@ -2,6 +2,14 @@ import { config } from "dotenv";
 
 config({ path: `.env.${process.env.NODE_ENV || "development"}.local` });
 
+const requiredEnv = ["DB_URI", "JWT_SECRET", "JWT_EXPIRES_IN"];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
+}
+
 export const {
   PORT,
   SERVER_URL,
