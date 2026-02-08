@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import mongoose from "mongoose";
 
 const subscriptionSchema = new mongoose.Schema(
@@ -85,7 +86,7 @@ subscriptionSchema.pre("validate", function () {
     };
 
     this.renewalDate = dayjs(this.startDate)
-      .addDate(renewalPeriods[this.frequency], "day")
+      .add(renewalPeriods[this.frequency], "day")
       .toDate();
   }
 

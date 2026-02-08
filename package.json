@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "lint": "eslint .",
+    "check": "node --check app.js"
   },
   "dependencies": {
     "@arcjet/inspect": "^1.1.0",

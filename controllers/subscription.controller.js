@@ -70,7 +70,7 @@ export const createSubscription = async (req, res, next) => {
     });
 
     const { workflowRunId } = await workflowClient.trigger({
-      url: `${SERVER_URL}/api/workflows/subscription/reminder`,
+      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
       body: { subscriptionId: subscription._id },
       headers: { "content-type": "application/json" },
       retries: 0,
@@ -106,7 +106,7 @@ export const deleteSubscription = async (req, res, next) => {
     notFound(subscription);
     checkOwnership(req.user._id, subscription.user);
 
-    await subscription.remove();
+    await subscription.deleteOne();
 
     res.status(200).json({ success: true, data: subscription });
   } catch (error) {

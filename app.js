@@ -24,8 +24,11 @@ app.use("/api/v1/workflows", workflowRouter);
 
 app.use(errorMiddleware);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ success: true, message: "OK" });
+});
+
 app.get("/", (req, res) => {
-  res.send("Welcome to the Subscription Tracker API!");
   res.json({ message: "Welcome to the Subscription Tracker API!" });
 });
 
