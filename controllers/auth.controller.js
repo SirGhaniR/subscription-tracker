@@ -12,6 +12,7 @@ export const register = async (req, res, next) => {
     if (existingUser) {
       const error = new Error("User already exists");
       error.statusCode = 409;
+      error.code = "USER_ALREADY_EXISTS";
       throw error;
     }
 
@@ -33,7 +34,7 @@ export const register = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "User created succesfully",
+      message: "User created successfully",
       data: {
         token,
         user: userResponse,
@@ -49,16 +50,11 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select("+password");
-    if (!user) {
-      const error = new Error("User not found");
-      error.statusCode = 404;
-      throw error;
-    }
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      const error = new Error("Invalid Password");
+    if (!isPasswordValid || !user) {
+      const error = new Error("Invalid email or password");
       error.statusCode = 401;
+      error.code = "INVALID_CREDENTIALS";
       throw error;
     }
 
@@ -71,7 +67,7 @@ export const login = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "User signed in succesfully",
+      message: "User signed in successfully",
       data: {
         token,
         user: userResponse,

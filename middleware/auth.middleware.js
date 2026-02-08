@@ -4,28 +4,67 @@ import User from "../models/user.model.js";
 
 const authorize = async (req, res, next) => {
   try {
-    let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-    if (!token) return res.status(401).json({ message: "Unauthorized" });
+    const authHeader = req.headers.authorization;
 
-    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!authHeader) {
+      return res.status(401).json({
+        error: {
+          code: "AUTH_HEADER_MISSING",
+          message: "Authorization header is required",
+        },
+      });
+    }
+
+    if (!authHeader.startsWith("Bearer")) {
+      return res.status(401).json({
+        error: {
+          code: "AUTH_HEADER_INVALID",
+          message: "Authorization header must use Bearer scheme",
+        },
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        error: {
+          code: "TOKEN_MISSING",
+          message: "Authentication token is missing",
+        },
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+      return res.status(401).json({
+        error: {
+          code: "TOKEN_INVALID",
+          message: "Authentication token is invalid or expired",
+        },
+      });
+    }
 
     const user = await User.findById(decoded.userId).select("-password");
-    if (!user) return res.status(401).json({ message: "Unauthorized" });
+    if (!user) {
+      return res.status(401).json({
+        error: {
+          code: "USER_NOT_FOUND",
+          message: "Authenticated user does not exist",
+        },
+      });
+    }
 
     req.user = user;
-
     next();
-  } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-      error: error.message,
+  } catch {
+    res.status(500).json({
+      error: {
+        code: "AUTH_INTERNAL_ERROR",
+        message: "An unexpected auth internal error occurred",
+      },
     });
   }
 };

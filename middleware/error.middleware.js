@@ -1,35 +1,40 @@
 const errorMiddleware = (err, req, res, next) => {
   try {
-    let error = { ...err };
-
-    error.message = err.message;
-
     console.error(err);
 
-    // Mongoose bad ObjectId
+    let statusCode = err.statusCode || 500;
+    let code = err.code || "SERVER_ERROR";
+    let message = err.message || "Internal server error";
+
+    // Mongoose: invalid ObjectId
     if (err.name === "CastError") {
-      const message = "Resource not found";
-      error = new Error(message);
-      error.statusCode = 404;
+      statusCode = 404;
+      code = "RESOURCE_NOT_FOUND";
+      message = "Resource not found";
     }
 
-    // Mongoose duplicate key
+    // Mongoose: duplicate key
     if (err.code === 11000) {
-      const message = "Duplicate field value entered";
-      error = new Error(message);
-      error.statusCode = 400;
+      statusCode = 40;
+      code = "DUPLICATE_FIELD";
+      const field = Object.keys(err.keyValue)[0];
+      message = `Duplicate value for field: ${field}`;
     }
 
-    // Mongoose validation error
+    // Mongoose: validation error
     if (err.name === "ValidationError") {
-      const message = Object.values(err.errors).map((val) => val.message);
-      error = new Error(message.join(", "));
-      error.statusCode = 400;
+      statusCode = 400;
+      code = "VALIDATION_ERROR";
+      message = Object.value(err.errors)
+        .map((val) => val.message)
+        .join(", ");
     }
 
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || "Server Error",
+    res.status(statusCode).json({
+      error: {
+        code,
+        message,
+      },
     });
   } catch (error) {
     next(error);

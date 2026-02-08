@@ -4,16 +4,20 @@ import { SERVER_URL } from "../config/env.js";
 
 const checkOwnership = (reqUserId, resourceUserId) => {
   if (reqUserId.toString() !== resourceUserId.toString()) {
-    const error = new Error("Forbidden");
+    const error = new Error(
+      "You do not have permission to access this resource",
+    );
     error.statusCode = 403;
+    error.code = "FORBIDDEN";
     throw error;
   }
 };
 
 const notFound = (resource) => {
   if (!resource) {
-    const error = new Error(`Not found`);
+    const error = new Error("Resource not found");
     error.statusCode = 404;
+    error.code = "RESOURCE_NOT_FOUND";
     throw error;
   }
 };
@@ -32,15 +36,20 @@ export const getAllSubscriptions = async (req, res, next) => {
 
 export const getUserSubscriptions = async (req, res, next) => {
   try {
+    if (req.user._id.toString() !== req.params.id) {
+      const error = new Error(
+        "You do not have permission to view these subscriptions",
+      );
+      error.statusCode = 403;
+      error.code = "FORBIDDEN";
+      throw error;
+    }
+
     const subscription = await Subscription.find({ user: req.params.id });
     if (!subscription.length) {
       const error = new Error("No subscriptions found for this user");
       error.statusCode = 404;
-      throw error;
-    }
-    if (req.user._id.toString() !== req.params.id) {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
+      error.code = "SUBSCRIPTIONS_NOT_FOUND";
       throw error;
     }
 

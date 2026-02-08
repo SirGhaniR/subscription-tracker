@@ -19,15 +19,20 @@ export const getUsers = async (req, res, next) => {
 
 export const getUser = async (req, res, next) => {
   try {
+    if (req.user._id.toString() !== req.params.id) {
+      const error = new Error(
+        "You do not have permission to access this resource",
+      );
+      error.statusCode = 403;
+      error.code = "FORBIDDEN";
+      throw error;
+    }
+
     const user = await User.findById(req.params.id).select("-password");
     if (!user) {
       const error = new Error("User not found");
       error.statusCode = 404;
-      throw error;
-    }
-    if (req.user._id.toString() !== req.params.id) {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
+      error.code = "USER_NOT_FOUND";
       throw error;
     }
 
@@ -48,6 +53,7 @@ export const createUser = async (req, res, next) => {
     if (existingUser) {
       const error = new Error("User already exists");
       error.statusCode = 409;
+      error.code = "USER_ALREADY_EXISTS";
       throw error;
     }
 
@@ -68,7 +74,7 @@ export const createUser = async (req, res, next) => {
     delete userResponse.password;
     res.status(201).json({
       success: true,
-      message: "User created succesfully",
+      message: "User created successfully",
       data: {
         token,
         user: userResponse,
@@ -83,8 +89,11 @@ export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (req.user._id.toString() !== id) {
-      const error = new Error("Forbidden");
+      const error = new Error(
+        "You do not have permission to access this resource",
+      );
       error.statusCode = 403;
+      error.code = "FORBIDDEN";
       throw error;
     }
 
@@ -99,6 +108,7 @@ export const updateUser = async (req, res, next) => {
     if (!updatedUser) {
       const error = new Error("User not found");
       error.statusCode = 404;
+      error.code = "USER_NOT_FOUND";
       throw error;
     }
 
@@ -118,16 +128,19 @@ export const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (req.user._id.toString() !== id) {
-      const error = new Error("Forbidden");
+      const error = new Error(
+        "You do not have permission to access this resource",
+      );
       error.statusCode = 403;
+      error.code = "FORBIDDEN";
       throw error;
     }
 
     const deletedUser = await User.findByIdAndDelete(id);
-
     if (!deletedUser) {
       const error = new Error("User not found");
       error.statusCode = 404;
+      error.code = "USER_NOT_FOUND";
       throw error;
     }
 
