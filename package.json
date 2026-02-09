@@ -7,7 +7,8 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "eslint .",
-    "check": "node --check app.js"
+    "check": "node --check app.js",
+    "test": "cross-env NODE_ENV=test jest"
   },
   "dependencies": {
     "@arcjet/inspect": "^1.1.0",
@@ -29,8 +30,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "cross-env": "^10.1.0",
     "eslint": "^10.0.0",
     "globals": "^17.3.0",
-    "nodemon": "^3.1.11"
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.2.2"
   }
 }
