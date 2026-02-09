@@ -11,6 +11,8 @@ import arcjetMiddleware from "./middleware/arcjet.middleware.js";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
+import pinoHttp from "pino-http";
+import logger from "./utils/logger.js";
 
 const app = express();
 
@@ -18,6 +20,12 @@ const app = express();
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 app.use(cookieParser());
+
+app.use(
+  pinoHttp({
+    logger,
+  }),
+);
 
 app.use(helmet());
 app.use(cors()); // in production, dont forget to restrict CORS to the frontend domain (if there are frontend huhu)
